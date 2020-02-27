@@ -7,7 +7,7 @@ class Dlist {
 private:
 	class Node {
 	public:
-		T date;
+		T date{};
 		Node* next{};
 		Node* prev{};
 	};
@@ -141,7 +141,7 @@ public:
 			delete m_front;
 
 			m_front = nextMember;
-			m_front->prev = nullptr;
+			if(m_listSize > 1) m_front->prev = nullptr;
 			--m_listSize;
 
 			return date;
@@ -173,14 +173,31 @@ public:
 	T pop_front() { return remove(0); }
 };
 
+	//todo: Сделать swap
 
 int main() {
 	system("chcp 65001"); system("cls");
 
 	Dlist<int> list;
-	list.push_front(25);
-	list.push_back(15);
-	cout << list.front() << " " << list.back() << endl;
+
+	/*constexpr auto SIZE2 = 40'000'000;
+	constexpr auto SIZE3 = 2'000'000;
+	cout << "All: ";
+	for (int i = 0; i < SIZE2; i += SIZE3) {
+		cout << "[  ]";
+	}
+	cout << endl << "     ";
+
+	for (int i = 0; i < SIZE2; ++i) {
+		list.push_back(i);
+		if (i % SIZE3 == 0) cout << " || ";
+	}
+	cout << endl;
+	list.clear();
+
+	if (list.isEmpty()) cout << "Лист пустой!!";
+	else cout << "Лист не пустой((";
+	cout << endl;*/
 
 	cout << "\nНажмите ввод чтобы закрыть";
 	cin.get();
