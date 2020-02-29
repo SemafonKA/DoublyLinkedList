@@ -14,7 +14,7 @@ class Dlist {
 private:
 	class Node {
 	public:
-		T date{};
+		T data{};
 		Node* next{};
 		Node* prev{};
 	};
@@ -23,6 +23,49 @@ private:
 	Node* m_back{};
 
 	int m_listSize{};
+
+	class OutClass {
+	public:
+		const int defaultLength = 15;
+		int lineLength{ defaultLength };
+
+		enum Workmode {
+			LIST				= 0,
+			LIST_ADRESS			= 1,
+			LIST_ADR_FULL		= 2,
+			LIST_NUMBER			= 3,
+			LIST_NUM_ADR		= 4,
+			LIST_NUM_ADR_FULL	= 5,
+			NO_OUT				= 6
+		};
+		Workmode mode{ LIST };
+
+		bool operator() (void) const {
+			if (mode != NO_OUT && isEmpty()) {
+				Node* currentMember = m_front;
+				std::cout << std::endl;
+				for (int i = 0; i < m_listSize; ++i) {
+					if (mode == LIST_NUMBER || mode == LIST_NUM_ADR || mode == LIST_NUM_ADR_FULL)
+						std::cout << i << ")\t";
+
+					std::cout << currentMember->data << "\t";
+					if (mode == LIST_ADRESS || mode == LIST_ADR_FULL || mode == LIST_NUM_ADR || mode == LIST_NUM_ADR_FULL)
+						std::cout << "Звено: " << currentMember << "\t";
+
+					if (mode == LIST_ADR_FULL || mode == LIST_NUM_ADR_FULL) {
+						std::cout << "Предыдущее: " << currentMember->prev << "\t" <<
+							"Следующее: " << currentMember->next;
+					}
+
+					if ((i + 1) % lineLength == 0 && mode == LIST) std::cout << std::endl;
+					currentMember = currentMember->next;
+				}
+				std::cout << std::endl;
+				return true;
+			}
+			else return false;
+		}
+	};
 
 	void listCheck() const {
 		Node* member = m_front;
@@ -72,6 +115,8 @@ public:
 		clear();
 	}
 
+	OutClass out;
+
 	/* Удаляет все члены списка */
 	void clear() {
 		if (!isEmpty()) {
@@ -88,28 +133,32 @@ public:
 		}
 	}
 	
-	/* Вернуть значение списка в позиции pos */
-	T pos_back(T pos) const {
+	/* Вернуть значение списка в позиции pos (ссылку) */
+	T& pos_back(int pos) {
 		Node* member = listSearch(pos);
-		return member->date;
+		return member->data;
+	}
+	/* Вернуть значение списка в позиции pos (ссылку) */
+	T& operator[] (int pos) {
+		return pos_back(pos);
 	}
 
 	/* Установить целочисленное значение списка в позиции pos */
-	Dlist& set(int pos, T date) {
+	Dlist& set(int pos, T data) {
 		Node* member = listSearch(pos);
-		member->date = date;
+		member->data = data;
 		return (*this);
 	}
 
 	/* Вставить новый член списка после позиции pos */
-	Dlist& push(int pos, T date = 0) {
+	Dlist& push(int pos, T data = 0) {
 		Node tmpNode{ 0, m_front };									// Звено, предшествующее первому звену 
 		Node* member = (pos == -1) ? &tmpNode : listSearch(pos);	// Звено, предшествующее новому звену	
 		Node* nextMember = member->next;
 
 		member->next = new Node;
 		member->next->prev = (pos == -1) ? (nullptr) : (member);
-		member->next->date = date;
+		member->next->data = data;
 
 		member->next->next = nextMember;
 		if (nextMember == nullptr) { m_back = member->next; }
@@ -128,7 +177,7 @@ public:
 		Node* prevMember = listSearch(pos - 1);
 		if (prevMember != nullptr) {				// Если нужное звено находится не в начале
 			Node* member = prevMember->next;
-			T date = member->date;
+			T data = member->data;
 
 			prevMember->next = member->next;
 			if (pos != m_listSize - 1) member->next->prev = member->prev;
@@ -137,10 +186,10 @@ public:
 			if (pos == m_listSize - 1) m_back = prevMember;
 			--m_listSize;
 
-			return date;
+			return data;
 		}
 		else {										//	if (prevMember != nullptr)									
-			T date = m_front->date;
+			T data = m_front->data;
 			Node* nextMember = m_front->next;
 			delete m_front;
 
@@ -148,7 +197,7 @@ public:
 			if(m_listSize > 1) m_front->prev = nullptr;
 			--m_listSize;
 
-			return date;
+			return data;
 		}
 	}
 
@@ -159,16 +208,16 @@ public:
 	bool isEmpty() const { return m_listSize == 0; }
 
 	/* Добавляет новое звено в начало списка */
-	Dlist& push_front(int date = 0) { return push(-1, date); }
+	Dlist& push_front(int data = 0) { return push(-1, data); }
 
 	/* Добавляет новое звено в конец списка */
-	Dlist& push_back(int date = 0) { return push(m_listSize - 1, date); }
+	Dlist& push_back(int data = 0) { return push(m_listSize - 1, data); }
 
-	/* Возвращает значение в последнем звене списка */
-	T back() const { return pos_back(m_listSize - 1); }
+	/* Возвращает значение в последнем звене списка (ссылку) */
+	T& back() { return pos_back(m_listSize - 1); }
 
-	/* Возвращает значение в первом звене списка */
-	T front() const { return pos_back(0); }
+	/* Возвращает значение в первом звене списка (ссылку) */
+	T& front() { return pos_back(0); }
 
 	/* Удаляет последнее звено списка */
 	T pop_back() { return remove(m_listSize - 1); }
@@ -189,31 +238,20 @@ public:
 		Node* prev2 = elem2->prev;
 		Node* next2 = elem2->next;
 
-		elem1->next				= next2;
-		elem1->prev				= prev2;
+		elem1->next	= next2;
+		elem1->prev	= prev2;
 
-		elem2->next				= next1;
-		elem2->prev				= prev1;
+		elem2->next	= next1;
+		elem2->prev	= prev1;
 
 		if (prev1) prev1->next	= elem2;
-		else m_front			= elem2;
-		next1->prev				= elem2;
+		else m_front	= elem2;
+		next1->prev		= elem2;
 
 		if (next2) next2->prev	= elem1;
-		else m_back				= elem1;
-		prev2->next				= elem1;
+		else m_back		= elem1;
+		prev2->next		= elem1;
 
-		return true;
-	}
-
-	bool out(void) const {
-		Node* currentMember = m_front;
-		for (int i = 0; i < m_listSize; ++i) {
-			std::cout << currentMember->date << "\t";
-			if ((i + 1) % 50 == 0) std::cout << std::endl;
-			currentMember = currentMember->next;
-		}
-		std::cout << std::endl;
 		return true;
 	}
 };
