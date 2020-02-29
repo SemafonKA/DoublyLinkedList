@@ -14,7 +14,7 @@ class Dlist {
 private:
 	class Node {
 	public:
-		T date{};
+		T data{};
 		Node* next{};
 		Node* prev{};
 	};
@@ -91,25 +91,25 @@ public:
 	/* Вернуть значение списка в позиции pos */
 	T pos_back(T pos) const {
 		Node* member = listSearch(pos);
-		return member->date;
+		return member->data;
 	}
 
 	/* Установить целочисленное значение списка в позиции pos */
-	Dlist& set(int pos, T date) {
+	Dlist& set(int pos, T data) {
 		Node* member = listSearch(pos);
-		member->date = date;
+		member->data = data;
 		return (*this);
 	}
 
 	/* Вставить новый член списка после позиции pos */
-	Dlist& push(int pos, T date = 0) {
+	Dlist& push(int pos, T data = 0) {
 		Node tmpNode{ 0, m_front };									// Звено, предшествующее первому звену 
 		Node* member = (pos == -1) ? &tmpNode : listSearch(pos);	// Звено, предшествующее новому звену	
 		Node* nextMember = member->next;
 
 		member->next = new Node;
 		member->next->prev = (pos == -1) ? (nullptr) : (member);
-		member->next->date = date;
+		member->next->data = data;
 
 		member->next->next = nextMember;
 		if (nextMember == nullptr) { m_back = member->next; }
@@ -128,7 +128,7 @@ public:
 		Node* prevMember = listSearch(pos - 1);
 		if (prevMember != nullptr) {				// Если нужное звено находится не в начале
 			Node* member = prevMember->next;
-			T date = member->date;
+			T data = member->data;
 
 			prevMember->next = member->next;
 			if (pos != m_listSize - 1) member->next->prev = member->prev;
@@ -137,10 +137,10 @@ public:
 			if (pos == m_listSize - 1) m_back = prevMember;
 			--m_listSize;
 
-			return date;
+			return data;
 		}
 		else {										//	if (prevMember != nullptr)									
-			T date = m_front->date;
+			T data = m_front->data;
 			Node* nextMember = m_front->next;
 			delete m_front;
 
@@ -148,7 +148,7 @@ public:
 			if(m_listSize > 1) m_front->prev = nullptr;
 			--m_listSize;
 
-			return date;
+			return data;
 		}
 	}
 
@@ -159,10 +159,10 @@ public:
 	bool isEmpty() const { return m_listSize == 0; }
 
 	/* Добавляет новое звено в начало списка */
-	Dlist& push_front(int date = 0) { return push(-1, date); }
+	Dlist& push_front(int data = 0) { return push(-1, data); }
 
 	/* Добавляет новое звено в конец списка */
-	Dlist& push_back(int date = 0) { return push(m_listSize - 1, date); }
+	Dlist& push_back(int data = 0) { return push(m_listSize - 1, data); }
 
 	/* Возвращает значение в последнем звене списка */
 	T back() const { return pos_back(m_listSize - 1); }
@@ -209,7 +209,7 @@ public:
 	bool out(void) const {
 		Node* currentMember = m_front;
 		for (int i = 0; i < m_listSize; ++i) {
-			std::cout << currentMember->date << "\t";
+			std::cout << currentMember->data << "\t";
 			if ((i + 1) % 50 == 0) std::cout << std::endl;
 			currentMember = currentMember->next;
 		}
