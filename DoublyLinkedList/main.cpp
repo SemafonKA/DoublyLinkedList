@@ -3,6 +3,13 @@
 using namespace std;
 
 template<typename T>
+inline void swap(T& first, T& second) {
+	T tmp = first;
+	first = second;
+	second = tmp;
+}
+
+template<typename T>
 class Dlist {
 private:
 	class Node {
@@ -17,7 +24,7 @@ private:
 
 	int m_listSize{};
 
-	void listCheck() {
+	void listCheck() const {
 		Node* member = m_front;
 		for (int i = 0; i < m_listSize; ++i) {
 			if (member == nullptr) {
@@ -60,9 +67,6 @@ private:
 public:
 	Dlist() {
 
-	}
-	Dlist(unsigned int listSize) {
-		//resize(listSize);
 	}
 	~Dlist() {
 		clear();
@@ -171,35 +175,74 @@ public:
 
 	/* Удаляет первое звено списка */
 	T pop_front() { return remove(0); }
-};
 
-	//todo: Сделать swap
+	/* Меняет два звена списка местами (без копирования) */
+	bool swap(int pos1, int pos2) {
+		if (pos1 == pos2)			return true;
+		if (pos1 > pos2)			swap(pos1, pos2); 
+		if (pos2 >= m_listSize)		return false;
+
+		Node* elem1 = listSearch(pos1);
+		Node* elem2 = listSearch(pos2);
+		Node* prev1 = elem1->prev;
+		Node* next1 = elem1->next;
+		Node* prev2 = elem2->prev;
+		Node* next2 = elem2->next;
+
+		elem1->next				= next2;
+		elem1->prev				= prev2;
+
+		elem2->next				= next1;
+		elem2->prev				= prev1;
+
+		if (prev1) prev1->next	= elem2;
+		else m_front			= elem2;
+		next1->prev				= elem2;
+
+		if (next2) next2->prev	= elem1;
+		else m_back				= elem1;
+		prev2->next				= elem1;
+
+		return true;
+	}
+
+	bool out(void) const {
+		Node* currentMember = m_front;
+		for (int i = 0; i < m_listSize; ++i) {
+			std::cout << currentMember->date << "\t";
+			if ((i + 1) % 50 == 0) std::cout << std::endl;
+			currentMember = currentMember->next;
+		}
+		std::cout << std::endl;
+		return true;
+	}
+};
 
 int main() {
 	system("chcp 65001"); system("cls");
 
 	Dlist<int> list;
+	list.push_back(25).push_back(125).push_back(15).push_back(835).push_back(9).push_back(-234);
+	cout << "Начальный список:" << endl;
+	list.out();
 
-	/*constexpr auto SIZE2 = 40'000'000;
-	constexpr auto SIZE3 = 2'000'000;
-	cout << "All: ";
-	for (int i = 0; i < SIZE2; i += SIZE3) {
-		cout << "[  ]";
-	}
-	cout << endl << "     ";
+	cout << endl << "Свап элементов (1, 3) из середины:" << endl;
+	list.swap(1, 3);
+	list.out();
 
-	for (int i = 0; i < SIZE2; ++i) {
-		list.push_back(i);
-		if (i % SIZE3 == 0) cout << " || ";
-	}
-	cout << endl;
-	list.clear();
+	cout << endl << "Свап элементов (0, 3) левый крайний:" << endl;
+	list.swap(0, 3);
+	list.out();
 
-	if (list.isEmpty()) cout << "Лист пустой!!";
-	else cout << "Лист не пустой((";
-	cout << endl;*/
+	cout << endl << "Свап элементов (2, 5) правый крайний:" << endl;
+	list.swap(2, 5);
+	list.out();
 
-	cout << "\nНажмите ввод чтобы закрыть";
+	cout << endl << "Свап элементов (0, 5) оба крайних:" << endl;
+	list.swap(0, 5);
+	list.out();
+
+	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
 	return 0;
 }
