@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <string>
 using namespace std;
 
 template<typename T>
@@ -198,7 +199,7 @@ public:
 
 	/* Вставить новый член списка после позиции pos */
 	Dlist& push(int pos, T data = 0) {
-		Node tmpNode{ 0, m_front };									// Звено, предшествующее первому звену 
+		Node tmpNode{ T{}, m_front };								// Звено, предшествующее первому звену 
 		Node* member = (pos == -1) ? &tmpNode : listSearch(pos);	// Звено, предшествующее новому звену	
 		Node* nextMember = member->next;
 
@@ -254,10 +255,10 @@ public:
 	bool isEmpty() const { return m_listSize == 0; }
 
 	/* Добавляет новое звено в начало списка */
-	Dlist& push_front(int data = 0) { return push(-1, data); }
+	Dlist& push_front(T data = 0) { return push(-1, data); }
 
 	/* Добавляет новое звено в конец списка */
-	Dlist& push_back(int data = 0) { return push(m_listSize - 1, data); }
+	Dlist& push_back(T data = 0) { return push(m_listSize - 1, data); }
 
 	/* Возвращает значение в последнем звене списка (ссылку) */
 	T& back() { return pos_back(m_listSize - 1); }
@@ -305,7 +306,7 @@ public:
 int main() {
 	system("chcp 65001"); system("cls");
 
-	Dlist<int> list;
+	/*Dlist<int> list;
 	list.out.mode(Mode::LIST_NUM_ADR_FULL);
 	list.push_back(25).push_back(125).push_back(15).push_back(835).push_back(9).push_back(-234);
 	cout << "Начальный список:" << endl;
@@ -325,8 +326,17 @@ int main() {
 
 	cout << endl << "Свап элементов (0, 5) оба крайних:" << endl;
 	list.swap(0, 5);
-	list.out();
+	list.out();*/
 	
+	Dlist<string> list;
+	list.push_back("String 1").push_back("string 2").push_back("string 3");
+	list.out.mode(Mode::LIST_NUM_ADR);
+	list.out();
+	list.swap(0, 2);
+	list.out();
+	list.pop_front();
+	list.out();
+
 	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
 	return 0;
