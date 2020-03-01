@@ -297,8 +297,6 @@ public:
 		if (next2) next2->prev	= elem1;
 		else m_back		= elem1;
 		prev2->next		= elem1;
-
-		return true;
 	}
 };
 
