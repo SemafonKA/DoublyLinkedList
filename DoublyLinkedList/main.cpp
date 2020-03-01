@@ -9,6 +9,15 @@ inline void swap(T& first, T& second) {
 	second = tmp;
 }
 
+enum class Mode {
+	LIST				= 0,
+	LIST_ADRESS			= 1,
+	LIST_ADR_FULL		= 2,
+	LIST_NUMBER			= 3,
+	LIST_NUM_ADR		= 4,
+	LIST_NUM_ADR_FULL	= 5,
+	NO_OUT				= 6
+};
 template<typename T>
 class Dlist {
 private:
@@ -24,40 +33,76 @@ private:
 
 	int m_listSize{};
 
+	/* Класс вывода данных в консоль */
 	class OutClass {
+	private:
+		Dlist* m_object{};			// Привязка к объекту списка
+		Mode m_mode{ Mode::LIST };	// Режим вывода
+
 	public:
-		const int defaultLength = 15;
-		int lineLength{ defaultLength };
+		OutClass(Dlist* object) {
+			m_object = object;
+		}
 
-		enum Workmode {
-			LIST				= 0,
-			LIST_ADRESS			= 1,
-			LIST_ADR_FULL		= 2,
-			LIST_NUMBER			= 3,
-			LIST_NUM_ADR		= 4,
-			LIST_NUM_ADR_FULL	= 5,
-			NO_OUT				= 6
-		};
-		Workmode mode{ LIST };
+		const int defaultLength = 15;		// Количество данных, выводимых в строку по умолчанию
+		int lineLength{ defaultLength };	// Количество данных, выводимых в строку
 
+		/* Методы изменения режима вывода */
+		void mode(Mode newMode) { m_mode = newMode; }
+		Mode mode(void) { return m_mode; }
+
+		/* Метод вывода данных диапазона (0, size - 1) */
 		bool operator() (void) const {
-			if (mode != NO_OUT && isEmpty()) {
-				Node* currentMember = m_front;
+			if (m_mode != Mode::NO_OUT && !m_object->isEmpty()) {
+				Node* currentMember = m_object->m_front;
 				std::cout << std::endl;
-				for (int i = 0; i < m_listSize; ++i) {
-					if (mode == LIST_NUMBER || mode == LIST_NUM_ADR || mode == LIST_NUM_ADR_FULL)
+				for (int i = 0; i < m_object->m_listSize; ++i) {
+					if (m_mode == Mode::LIST_NUMBER || m_mode == Mode::LIST_NUM_ADR ||
+					  m_mode == Mode::LIST_NUM_ADR_FULL) {
 						std::cout << i << ")\t";
-
-					std::cout << currentMember->data << "\t";
-					if (mode == LIST_ADRESS || mode == LIST_ADR_FULL || mode == LIST_NUM_ADR || mode == LIST_NUM_ADR_FULL)
-						std::cout << "Звено: " << currentMember << "\t";
-
-					if (mode == LIST_ADR_FULL || mode == LIST_NUM_ADR_FULL) {
-						std::cout << "Предыдущее: " << currentMember->prev << "\t" <<
-							"Следующее: " << currentMember->next;
 					}
 
-					if ((i + 1) % lineLength == 0 && mode == LIST) std::cout << std::endl;
+					std::cout << currentMember->data << "\t";
+					if (m_mode == Mode::LIST_ADRESS || m_mode == Mode::LIST_ADR_FULL ||
+					  m_mode == Mode::LIST_NUM_ADR || m_mode == Mode::LIST_NUM_ADR_FULL) {
+						std::cout << "Звено: [" << currentMember << "]\t";
+					}
+					if (m_mode == Mode::LIST_ADR_FULL || m_mode == Mode::LIST_NUM_ADR_FULL) {
+						std::cout << "Предыдущее: [" << currentMember->prev << "]\t" <<
+							"Следующее: [" << currentMember->next << "]";
+					}
+
+					if ((i + 1) % lineLength == 0 && m_mode == Mode::LIST || m_mode != Mode::LIST) std::cout << std::endl;
+					currentMember = currentMember->next;
+				}
+				std::cout << std::endl;
+				return true;
+			}
+			else return false;
+		}
+
+		/* Метод вывода данных указанного диапазона */
+		bool operator() (int start, int end = m_object->m_listSize) {
+			if (m_mode != Mode::NO_OUT && !m_object->isEmpty() && end < m_object->m_listSize) {
+				Node* currentMember = m_object->listSearch(start);
+				std::cout << std::endl;
+				for (int i = start; i <= end; ++i) {
+					if (m_mode == Mode::LIST_NUMBER || m_mode == Mode::LIST_NUM_ADR ||
+						m_mode == Mode::LIST_NUM_ADR_FULL) {
+						std::cout << i << ")\t";
+					}
+
+					std::cout << currentMember->data << "\t";
+					if (m_mode == Mode::LIST_ADRESS || m_mode == Mode::LIST_ADR_FULL ||
+						m_mode == Mode::LIST_NUM_ADR || m_mode == Mode::LIST_NUM_ADR_FULL) {
+						std::cout << "Звено: [" << currentMember << "]\t";
+					}
+					if (m_mode == Mode::LIST_ADR_FULL || m_mode == Mode::LIST_NUM_ADR_FULL) {
+						std::cout << "Предыдущее: [" << currentMember->prev << "]\t" <<
+							"Следующее: [" << currentMember->next << "]";
+					}
+
+					if ((i + 1) % lineLength == 0 && m_mode == Mode::LIST || m_mode != Mode::LIST) std::cout << std::endl;
 					currentMember = currentMember->next;
 				}
 				std::cout << std::endl;
@@ -115,7 +160,8 @@ public:
 		clear();
 	}
 
-	OutClass out;
+	/* Поток вывода данных */
+	OutClass out{ this };
 
 	/* Удаляет все члены списка */
 	void clear() {
@@ -260,6 +306,7 @@ int main() {
 	system("chcp 65001"); system("cls");
 
 	Dlist<int> list;
+	list.out.mode(Mode::LIST_NUM_ADR_FULL);
 	list.push_back(25).push_back(125).push_back(15).push_back(835).push_back(9).push_back(-234);
 	cout << "Начальный список:" << endl;
 	list.out();
@@ -279,7 +326,7 @@ int main() {
 	cout << endl << "Свап элементов (0, 5) оба крайних:" << endl;
 	list.swap(0, 5);
 	list.out();
-
+	
 	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
 	return 0;
