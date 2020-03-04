@@ -1,4 +1,4 @@
-#include <cstdlib>
+	#include <cstdlib>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -277,6 +277,7 @@ public:
 		if (pos1 == pos2)			return true;
 		if (pos1 > pos2)			swap(pos1, pos2); 
 		if (pos2 >= m_listSize)		return false;
+		if (pos1 < 0)				return false;
 
 		Node* elem1 = listSearch(pos1);
 		Node* elem2 = listSearch(pos2);
@@ -285,19 +286,22 @@ public:
 		Node* prev2 = elem2->prev;
 		Node* next2 = elem2->next;
 
+		bool neighbors{ next1 == elem2 };
 		elem1->next	= next2;
-		elem1->prev	= prev2;
+		if (!neighbors) elem1->prev = prev2;
+		else elem1->prev = elem2;
 
-		elem2->next	= next1;
+		if (!neighbors) elem2->next = next1;
+		else elem2->next = elem1;
 		elem2->prev	= prev1;
 
 		if (prev1) prev1->next	= elem2;
 		else m_front	= elem2;
-		next1->prev		= elem2;
+		if (!neighbors) next1->prev	= elem2;
 
 		if (next2) next2->prev	= elem1;
-		else m_back		= elem1;
-		prev2->next		= elem1;
+		else m_back	= elem1;
+		if(!neighbors) prev2->next = elem1;
 		
 		return true;
 	}
@@ -306,7 +310,7 @@ public:
 int main() {
 	system("chcp 65001"); system("cls");
 
-	/*Dlist<int> list;
+	Dlist<int> list;
 	list.out.mode(Mode::LIST_NUM_ADR_FULL);
 	list.push_back(25).push_back(125).push_back(15).push_back(835).push_back(9).push_back(-234);
 	cout << "Начальный список:" << endl;
@@ -326,16 +330,21 @@ int main() {
 
 	cout << endl << "Свап элементов (0, 5) оба крайних:" << endl;
 	list.swap(0, 5);
-	list.out();*/
+	list.out();
 	
-	Dlist<string> list;
+	cout << endl << "Свап элементов (0, 1) соседи:" << endl;
+
+	list.swap(0, 1);
+	list.out();
+
+	/*Dlist<string> list;
 	list.push_back("String 1").push_back("string 2").push_back("string 3");
 	list.out.mode(Mode::LIST_NUM_ADR);
 	list.out();
 	list.swap(0, 2);
 	list.out();
 	list.pop_front();
-	list.out();
+	list.out();*/
 
 	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
