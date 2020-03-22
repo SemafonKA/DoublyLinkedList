@@ -128,7 +128,6 @@ private:
 		if (pos >= m_listSize) {
 			cerr << "ERR: out of range";
 			throw logic_error("ERR: out of range");
-			return nullptr;
 		}
 		if (pos < 0)				return nullptr;
 		if (pos == 0)				return m_front;
@@ -209,14 +208,15 @@ public:
 
 		member->next->next = nextMember;
 		if (nextMember == nullptr) { m_back = member->next; }
-		if (pos < 0) { m_front = member->next; }
+		else if (pos == -1) { nextMember->prev = member->next; }
+		if (pos == -1) { m_front = member->next; }
 		++m_listSize;
 
 		return (*this);
 	}
 
 	/* Удалить член списка из заданной позиции pos */
-	T remove(int pos) {
+	T pop(int pos) {
 		if (isEmpty()) {
 			throw logic_error("ERR: list is empty!");
 			return 0;
@@ -267,10 +267,10 @@ public:
 	T& front() { return pos_back(0); }
 
 	/* Удаляет последнее звено списка */
-	T pop_back() { return remove(m_listSize - 1); }
+	T pop_back() { return pop(m_listSize - 1); }
 
 	/* Удаляет первое звено списка */
-	T pop_front() { return remove(0); }
+	T pop_front() { return pop(0); }
 
 	/* Меняет два звена списка местами (без копирования) */
 	bool swap(int pos1, int pos2) {
@@ -312,40 +312,13 @@ int main() {
 
 	Dlist<int> list;
 	list.out.mode(Mode::LIST_NUM_ADR_FULL);
-	list.push_back(25).push_back(125).push_back(15).push_back(835).push_back(9).push_back(-234);
+	list.push_front(25).push_front(125).push_front(15).push_front(835).push_front(9).push_front(-234);
 	cout << "Начальный список:" << endl;
+	list.out();	
+	cout << list.pop(5) << endl;
+	list.push_back(112).push_back(861).push_back(134).push_back(94);
 	list.out();
-
-	cout << endl << "Свап элементов (1, 3) из середины:" << endl;
-	list.swap(1, 3);
-	list.out();
-
-	cout << endl << "Свап элементов (0, 3) левый крайний:" << endl;
-	list.swap(0, 3);
-	list.out();
-
-	cout << endl << "Свап элементов (2, 5) правый крайний:" << endl;
-	list.swap(2, 5);
-	list.out();
-
-	cout << endl << "Свап элементов (0, 5) оба крайних:" << endl;
-	list.swap(0, 5);
-	list.out();
-	
-	cout << endl << "Свап элементов (0, 1) соседи:" << endl;
-
-	list.swap(0, 1);
-	list.out();
-
-	/*Dlist<string> list;
-	list.push_back("String 1").push_back("string 2").push_back("string 3");
-	list.out.mode(Mode::LIST_NUM_ADR);
-	list.out();
-	list.swap(0, 2);
-	list.out();
-	list.pop_front();
-	list.out();*/
-
+	cout << list.pop_front() << endl;
 	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
 	return 0;
