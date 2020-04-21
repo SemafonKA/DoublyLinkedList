@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////
 //                                                               //
-//                Doubly linked list v.1.0.1                     //
+//                Doubly linked list v.1.0.2                     //
 //                Project made by SemafonKA                      //
 //          Me on gitHub (https://github.com/SemafonKA)          //
 //                                                               //
@@ -304,6 +304,17 @@ public:
 		if (!neighbors) prev2->next = elem1;
 
 		return true;
+	}
+
+	/* Копирует список из другого списка (правого операнда) */
+	Dlist& operator=(const Dlist<T>& _right) {
+		if (this == &_right) return *this;
+
+		this->clear();
+		for (int i = 0; i < _right.size(); ++i) {
+			this->push_back(_right.at(i));
+		}
+		return *this;
 	}
 };
 

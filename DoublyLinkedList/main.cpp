@@ -30,9 +30,10 @@ int main() {
 	}
 	
 	list_out(list);
-
-	sort(list);
-	list_out(list);
+	Dlist<pair<int, int>> sorted;
+	sorted = list;
+	sort(sorted);
+	list_out(sorted);
 
 	cout << "\nНажмите ввод чтобы закрыть" << endl;
 	cin.get();
