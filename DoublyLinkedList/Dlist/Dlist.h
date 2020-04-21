@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////
 //                                                               //
-//                Doubly linked list v.1.0.0                     //
+//                Doubly linked list v.1.0.1                     //
 //                Project made by SemafonKA                      //
 //          Me on gitHub (https://github.com/SemafonKA)          //
 //                                                               //
@@ -8,6 +8,7 @@
 
 #pragma once
 #include <iostream>
+#include <string>
 
 template<typename T>
 inline void swap(T& first, T& second) {
@@ -17,13 +18,13 @@ inline void swap(T& first, T& second) {
 }
 
 enum class Mode {
-	LIST = 0,
-	LIST_ADRESS = 1,
-	LIST_ADR_FULL = 2,
-	LIST_NUMBER = 3,
-	LIST_NUM_ADR = 4,
-	LIST_NUM_ADR_FULL = 5,
-	NO_OUT = 6
+	LIST                = 0,
+	LIST_ADRESS         = 1,
+	LIST_ADR_FULL       = 2,
+	LIST_NUMBER         = 3,
+	LIST_NUM_ADR        = 4,
+	LIST_NUM_ADR_FULL   = 5,
+	NO_OUT              = 6
 };
 template<typename T>
 class Dlist {
@@ -58,38 +59,9 @@ private:
 		void mode(Mode newMode) { m_mode = newMode; }
 		Mode mode(void) { return m_mode; }
 
-		/* Метод вывода данных диапазона (0, size - 1) */
-		/*bool operator() (void) const {
-			if (m_mode != Mode::NO_OUT && !m_object->isEmpty()) {
-				Node* currentMember = m_object->m_front;
-				std::cout << std::endl;
-				for (int i = 0; i < m_object->m_listSize; ++i) {
-					if (m_mode == Mode::LIST_NUMBER || m_mode == Mode::LIST_NUM_ADR ||
-						m_mode == Mode::LIST_NUM_ADR_FULL) {
-						std::cout << i << ")\t";
-					}
-
-					std::cout << currentMember->data << "\t";
-					if (m_mode == Mode::LIST_ADRESS || m_mode == Mode::LIST_ADR_FULL ||
-						m_mode == Mode::LIST_NUM_ADR || m_mode == Mode::LIST_NUM_ADR_FULL) {
-						std::cout << "Звено: [" << currentMember << "]\t";
-					}
-					if (m_mode == Mode::LIST_ADR_FULL || m_mode == Mode::LIST_NUM_ADR_FULL) {
-						std::cout << "Предыдущее: [" << currentMember->prev << "]\t" <<
-							"Следующее: [" << currentMember->next << "]";
-					}
-
-					if ((i + 1) % lineLength == 0 && m_mode == Mode::LIST || m_mode != Mode::LIST) std::cout << std::endl;
-					currentMember = currentMember->next;
-				}
-				std::cout << std::endl;
-				return true;
-			}
-			else return false;
-		}*/
-
 		/* Метод вывода данных указанного диапазона */
-		bool operator() (int start = 0, int end = m_object->m_listSize) {
+		bool operator() (int start = 0, int end = -1) {
+			if (end == -1) end = m_object->m_listSize - 1;
 			if (m_mode != Mode::NO_OUT && !m_object->isEmpty() && end < m_object->m_listSize) {
 				Node* currentMember = m_object->listSearch(start);
 				std::cout << std::endl;
@@ -123,8 +95,7 @@ private:
 		Node* member = m_front;
 		for (int i = 0; i < m_listSize; ++i) {
 			if (member == nullptr) {
-				cerr << "ERR: error in resize list";
-				throw logic_error("ERR: error in resize list");
+				throw std::logic_error("ERR: error in resize list");
 			}
 			member = member->next;
 		}
@@ -132,8 +103,7 @@ private:
 
 	Node* listSearch(int pos) const {
 		if (pos >= m_listSize) {
-			cerr << "ERR: out of range";
-			throw logic_error("ERR: out of range");
+			throw std::logic_error("ERR: out of range");
 		}
 		if (pos < 0)				return nullptr;
 		if (pos == 0)				return m_front;
@@ -149,7 +119,6 @@ private:
 		}
 		else {
 			member = m_back;
-
 			for (int i = m_listSize - 1; i > pos; --i) {
 				member = member->prev;
 			}
@@ -208,7 +177,7 @@ public:
 		return pos_back(pos);
 	}
 
-	/* Установить целочисленное значение списка в позиции pos */
+	/* Установить значение списка в позиции pos */
 	Dlist& set(int pos, T data) {
 		Node* member = listSearch(pos);
 		member->data = data;
@@ -216,7 +185,7 @@ public:
 	}
 
 	/* Вставить новый член списка после позиции pos */
-	Dlist& push(int pos, T data = 0) {
+	Dlist& push(int pos, T data = T{}) {
 		Node tmpNode{ T{}, m_front };								// Звено, предшествующее первому звену 
 		Node* member = (pos == -1) ? &tmpNode : listSearch(pos);	// Звено, предшествующее новому звену	
 		Node* nextMember = member->next;
@@ -237,8 +206,7 @@ public:
 	/* Удалить член списка из заданной позиции pos */
 	T pop(int pos) {
 		if (isEmpty()) {
-			throw logic_error("ERR: list is empty!");
-			return 0;
+			throw std::logic_error("ERR: list is empty!");
 		}
 		Node* prevMember = listSearch(pos - 1);
 		if (prevMember != nullptr) {				// Если нужное звено находится не в начале
@@ -267,6 +235,19 @@ public:
 		}
 	}
 
+	/* Изменить размер списка */
+	int resize(unsigned int _size) {
+		if (_size == m_listSize)   return 2;
+		if (_size == 0) { clear(); }
+
+		if (_size > m_listSize) {
+			while (m_listSize != _size) push_back();
+		}
+		else if (_size < m_listSize) {
+			while (m_listSize != _size) pop_back();
+		}
+	}
+
 	/* Возвращает размер списка */
 	unsigned int size() const { return m_listSize; }
 
@@ -274,10 +255,10 @@ public:
 	bool isEmpty() const { return m_listSize == 0; }
 
 	/* Добавляет новое звено в начало списка */
-	Dlist& push_front(T data = 0) { return push(-1, data); }
+	Dlist& push_front(T data = T{}) { return push(-1, data); }
 
 	/* Добавляет новое звено в конец списка */
-	Dlist& push_back(T data = 0) { return push(m_listSize - 1, data); }
+	Dlist& push_back(T data = T{}) { return push(m_listSize - 1, data); }
 
 	/* Возвращает значение в последнем звене списка (ссылку) */
 	T& back() { return pos_back(m_listSize - 1); }
@@ -325,3 +306,35 @@ public:
 		return true;
 	}
 };
+
+
+/* Построение пирамиды для сортировки */
+template <typename T>
+void pyramid(Dlist<T>& mas, const int SIZE, bool isPyramidBuilded = false) {
+	int k_max{}, mid{ SIZE / 2 - 1 };
+	int i{}, k{}, tmp{};
+	for (i = mid; i >= 0; i--) {
+		if (isPyramidBuilded) i = 0;													// Если пирамида уже была построена, остаётся просеивать только первый элемент
+		for (k = i; k <= mid;) {
+			if (k == mid && SIZE % 2 == 0) k_max = k * 2 + 1;
+			else k_max = mas[k * 2 + 1] >= mas[k * 2 + 2] ? k * 2 + 1 : k * 2 + 2;
+			if (mas[k] < mas[k_max]) {
+				mas.swap(k, k_max);
+				k = k_max;
+			}
+			else break;
+		}
+	}
+}
+/* Пирамидальная сортировка */
+template <typename T>
+int sort(Dlist<T>& _list) {
+	bool isPyramidBuilded = false;
+	int i{};
+	for (i = _list.size(); i > 1; i--) {
+		pyramid(_list, i, isPyramidBuilded);
+		isPyramidBuilded = true;
+		_list.swap(0, i - 1);
+	}
+	return 1;
+}
