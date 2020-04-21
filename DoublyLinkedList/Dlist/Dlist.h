@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////
 //                                                               //
-//                Doubly linked list v.1.0.2                     //
+//                Doubly linked list v.1.0.3                     //
 //                Project made by SemafonKA                      //
 //          Me on gitHub (https://github.com/SemafonKA)          //
 //                                                               //
@@ -129,6 +129,11 @@ private:
 
 public:
 	Dlist() {}
+	Dlist(const Dlist<T>& _right) {
+		for (int i = 0; i < _right.size(); ++i) {
+			this->push_back(_right.at(i));
+		}
+	}
 	~Dlist() { clear();	}
 
 	/* Поток вывода данных */
